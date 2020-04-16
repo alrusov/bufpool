@@ -8,7 +8,7 @@ import (
 //----------------------------------------------------------------------------------------------------------------------------//
 
 var (
-	enabled = false
+	enabled = true
 	bufPool = sync.Pool{New: func() interface{} { return new(bytes.Buffer) }}
 )
 
