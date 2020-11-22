@@ -8,18 +8,6 @@ import (
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-type (
-	// Stat --
-	Stat struct {
-		Issued   int64 `json:"issued"`
-		Released int64 `json:"released"`
-		InUse    int64 `json:"inUse"`
-	}
-
-	// GetStatFunc --
-	GetStatFunc func() (stat *Stat)
-)
-
 var (
 	enabled  = true
 	bufPool  = sync.Pool{New: func() interface{} { return new(bytes.Buffer) }}
@@ -71,12 +59,22 @@ func Disable() {
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
+type (
+	stat struct {
+		Issued   int64 `json:"issued"`
+		Released int64 `json:"released"`
+		InUse    int64 `json:"inUse"`
+	}
+)
+
 // GetStat --
-func GetStat() (stat *Stat) {
-	return &Stat{
+func GetStat() interface{} {
+	stat := &stat{
 		Issued:   atomic.LoadInt64(&issued),
 		Released: atomic.LoadInt64(&released),
 	}
+	stat.InUse = stat.Issued - stat.Released
+	return stat
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
