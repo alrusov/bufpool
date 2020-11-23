@@ -9,28 +9,38 @@ import (
 //----------------------------------------------------------------------------------------------------------------------------//
 
 var (
-	enabled  = true
-	bufPool  = sync.Pool{New: func() interface{} { return new(bytes.Buffer) }}
+	enabled = true
+
+	bufPool = sync.Pool{
+		New: func() interface{} {
+			return new(bytes.Buffer)
+		},
+	}
+
 	issued   = int64(0)
 	released = int64(0)
 )
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
+// Enable --
+func Enable() {
+	enabled = true
+}
+
+// Disable --
+func Disable() {
+	enabled = false
+}
+
+//----------------------------------------------------------------------------------------------------------------------------//
+
 // GetBuf --
 func GetBuf() (b *bytes.Buffer) {
-	defer func() {
-		if enabled && b != nil {
-			atomic.AddInt64(&issued, 1)
-		}
-	}()
-
 	if enabled {
-		ok := false
-		b, ok = bufPool.Get().(*bytes.Buffer)
-		if ok {
-			return
-		}
+		b = bufPool.Get().(*bytes.Buffer)
+		atomic.AddInt64(&issued, 1)
+		return
 	}
 
 	return new(bytes.Buffer)
@@ -43,18 +53,6 @@ func PutBuf(b *bytes.Buffer) {
 		bufPool.Put(b)
 		atomic.AddInt64(&released, 1)
 	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------------//
-
-// Enable --
-func Enable() {
-	enabled = true
-}
-
-// Disable --
-func Disable() {
-	enabled = false
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
