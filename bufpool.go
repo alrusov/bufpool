@@ -12,7 +12,7 @@ var (
 	enabled = true
 
 	bufPool = sync.Pool{
-		New: func() interface{} {
+		New: func() any {
 			return new(bytes.Buffer)
 		},
 	}
@@ -66,7 +66,7 @@ type (
 )
 
 // GetStat --
-func GetStat() interface{} {
+func GetStat() any {
 	stat := &stat{
 		Issued:   atomic.LoadInt64(&issued),
 		Released: atomic.LoadInt64(&released),
